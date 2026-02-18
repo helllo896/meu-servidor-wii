@@ -1,25 +1,19 @@
 import asyncio
-import os
-import websockets
+ import os
+ from cloudlink import server
 
-async def handler(websocket):
-    # Lógica simples de repetidor (o que um recebe, o outro na sala lê)
-    async for message in websocket:
-        # Envia a mensagem de volta para todos os conectados (broadcast)
-        for conn in connected:
-            if conn != websocket:
-                await conn.send(message)
+ async def main():
+     # Pega a porta que o Render exige
+     port = int(os.environ.get("PORT", 8080))
+     
+     # Inicializa o servidor Cloudlink 4
+     cl = server()
+     
+     print(f"Servidor Cloudlink com Salas ativo na porta {port}")
+     
+     # O comando cl.run inicia o protocolo que o TurboWarp reconhece
+     # O ip 0.0.0.0 permite que o Render direcione o tráfego para o código
+     await cl.run(ip="0.0.0.0", port=port)
 
-connected = set()
-
-async def main():
-    # Pega a porta do Render
-    port = int(os.environ.get("PORT", 8080))
-    
-    # Registra quem entra e sai
-    async with websockets.serve(handler, "0.0.0.0", port):
-        print(f"Servidor Wii rodando na porta {port}")
-        await asyncio.Future()  # Mantém o servidor vivo para sempre
-
-if __name__ == "__main__":
-    asyncio.run(main())
+ if __name__ == "__main__":
+     asyncio.run(main())
