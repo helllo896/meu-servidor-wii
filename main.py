@@ -1,26 +1,21 @@
 import asyncio
 import os
 from cloudlink import server
-from aiohttp import web
-
-async def heartbeat(request):
-    return web.Response(text="Servidor Wii Online")
 
 async def main():
+    # O Render exige o uso da variável de ambiente PORT
     port = int(os.environ.get("PORT", 8080))
     
-    # Configura o Servidor Cloudlink
+    # Inicializa o servidor Cloudlink
     cl = server()
     
-    # Cria um servidor web simples para o Render não dar erro de porta
-    app = web.Application()
-    app.router.add_get("/", heartbeat)
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", port)
-    
-    print(f"Servidor Wii na porta {port}")
-    
+    # O segredo: a versão 4 do Cloudlink usa cl.run() que já abre o websocket.
+    # Usamos o ip 0.0.0.0 para o Render conseguir rotear o tráfego.
+    print(f"Iniciando Wii Server na porta {port}")
+    await cl.run(ip="0.0.0.0", port=port)
+
+if __name__ == "__main__":
+    asyncio.run(main())
     # Inicia o servidor web e o Cloudlink juntos
     await asyncio.gather(
         site.start(),
