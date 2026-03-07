@@ -1,17 +1,23 @@
 import os
+import asyncio
 from cloudlink import server
 
 def main():
-    # O Render usa a porta 10000 ou o que estiver na variável PORT
-    porta = int(os.environ.get("PORT", 8080))
+    # Porta padrão do Render
+    porta = int(os.environ.get("PORT", 10000))
     
-    # Inicializa o servidor
+    # Criamos o servidor
     cl = server()
     
-    print(f"Servidor Cloudlink iniciando na porta {porta}...")
+    # --- CONFIGURAÇÕES DE COMPATIBILIDADE ---
+    # 1. Permite que o TurboWarp conecte de qualquer lugar
+    cl.conns.check_origin = False 
     
-    # No Cloudlink 4, para evitar o erro de 'event loop', 
-    # chamamos o run() direto, sem o asyncio.run por fora.
+    # 2. Força o servidor a ser menos rígido com o protocolo
+    print(f"Servidor subindo na porta {porta}...")
+    
+    # O Cloudlink 4.0 às vezes precisa que o motor asyncio seja 
+    # iniciado de forma que não bloqueie o handshake do Scratch.
     cl.run(ip="0.0.0.0", port=porta)
 
 if __name__ == "__main__":
