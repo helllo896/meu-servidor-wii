@@ -1,20 +1,18 @@
-import asyncio
 import os
-import cloudlink
+from cloudlink import server
 
-async def main():
-    port = int(os.environ.get("PORT", 8080))
+def main():
+    # O Render usa a porta 10000 ou o que estiver na variável PORT
+    porta = int(os.environ.get("PORT", 8080))
     
     # Inicializa o servidor
-    server = cloudlink.server()
+    cl = server()
     
-    print(f"Servidor Cloudlink iniciando na porta {port}")
+    print(f"Servidor Cloudlink iniciando na porta {porta}...")
     
-    # Tenta rodar com 'ip', se falhar tenta com 'host' (para cobrir todas as versões)
-    try:
-        await server.run(ip="0.0.0.0", port=port)
-    except TypeError:
-        await server.run(host="0.0.0.0", port=port)
+    # No Cloudlink 4, para evitar o erro de 'event loop', 
+    # chamamos o run() direto, sem o asyncio.run por fora.
+    cl.run(ip="0.0.0.0", port=porta)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
