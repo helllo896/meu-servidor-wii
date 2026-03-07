@@ -1,18 +1,20 @@
 import asyncio
 import os
-from cloudlink import server
+import cloudlink
 
 async def main():
-    # O Render obriga a usar a porta da variável de ambiente PORT
-    porta = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 8080))
     
-    # Inicializa o motor do Cloudlink
-    cl = server()
+    # Inicializa o servidor
+    server = cloudlink.server()
     
-    print(f"Servidor iniciado na porta {porta}")
+    print(f"Servidor Cloudlink iniciando na porta {port}")
     
-    # No Cloudlink 4, usamos ip="0.0.0.0" para o Render conseguir acessar
-    await cl.run(ip="0.0.0.0", port=porta)
+    # Tenta rodar com 'ip', se falhar tenta com 'host' (para cobrir todas as versões)
+    try:
+        await server.run(ip="0.0.0.0", port=port)
+    except TypeError:
+        await server.run(host="0.0.0.0", port=port)
 
 if __name__ == "__main__":
     asyncio.run(main())
